@@ -1,7 +1,8 @@
 package main
 
-import "log"
+import "github.com/startup-of-zero-reais/COD-users-api/adapters/http/server"
 
 func main() {
-	log.Println("Hello world")
+	app := server.NewApplication()
+	app.Start()
 }
