@@ -1,0 +1,16 @@
+version: "3.9"
+
+services:
+  api:
+    container_name: cod-users-api
+    build: .
+    volumes:
+      - .:/go/src
+    ports:
+      - "8080:8080"
+    networks:
+      - cod-users-api-net
+
+networks:
+  cod-users-api-net:
+    driver: bridge
