@@ -72,10 +72,5 @@ func (u *User) Validate(user *entities.User) []validators.Error {
 		return errors
 	}
 
-	return []validators.Error{
-		{
-			Field:   "",
-			Message: "Unknown error",
-		},
-	}
+	return nil
 }
