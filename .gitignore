@@ -2,3 +2,4 @@
 .vscode/
 gin-bin
 .docker/dbdata/
+.env
