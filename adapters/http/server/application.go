@@ -3,7 +3,9 @@ package server
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/routes"
+	"os"
 )
 
 type (
@@ -13,16 +15,35 @@ type (
 	}
 
 	Application struct {
-		e *echo.Echo
+		e  *echo.Echo
+		db *database.Database
 	}
 )
+
+func makeCodDbConnection() (*database.Database, error) {
+	dsn := os.Getenv("MYSQL_COD_DSN")
+	db := database.NewDatabase()
+	db.Dsn = dsn
+	err := db.Connect()
+	if err != nil {
+		return nil, err
+	}
+
+	return db, nil
+}
 
 func NewApplication() *Application {
 	s := echo.New()
 	s.Use(middleware.Logger())
 
+	db, err := makeCodDbConnection()
+	if err != nil {
+		s.Logger.Fatal(err)
+	}
+
 	return &Application{
-		e: s,
+		e:  s,
+		db: db,
 	}
 }
 
