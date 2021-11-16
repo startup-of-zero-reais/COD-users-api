@@ -15,19 +15,27 @@ type (
 		Lastname  string    `json:"lastname" gorm:"lastname" validate:"required"`
 		Email     string    `json:"email" gorm:"email;unique" validate:"required,email"`
 		Type      UserType  `json:"user_type" gorm:"user_type"`
-		CreatedAt time.Time `json:"created_at" gorm:"created_at;autoCreateTime"`
-		UpdatedAt time.Time `json:"updated_at" gorm:"updated_at;autoUpdateTime"`
+		CreatedAt time.Time `json:"created_at" gorm:"created_at"`
+		UpdatedAt time.Time `json:"updated_at" gorm:"updated_at"`
 	}
 )
 
-func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+func (u *User) BeforeCreate(tx *gorm.DB) error {
 	u.ID = uuid.New().String()
 
 	if u.Type == "" {
 		u.Type = student
 	}
 
-	return
+	return nil
+}
+
+func (u *User) BeforeSave(tx *gorm.DB) error {
+	if u.Type == "" {
+		u.Type = student
+	}
+
+	return nil
 }
 
 const (
