@@ -7,6 +7,6 @@ type (
 		Get(ids []string, limit uint, offset uint) []entities.User
 		Search(search map[string]interface{}) []entities.User
 		Save(user *entities.User) *entities.User
-		Delete(id string) *entities.User
+		Delete(id string) bool
 	}
 )
