@@ -1,4 +1,4 @@
-package routes
+package controllers
 
 import (
 	"github.com/labstack/echo/v4"

@@ -1,4 +1,4 @@
-package routes
+package router
 
 import (
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/validators"
@@ -11,20 +11,20 @@ type (
 		Message *string `json:"message,omitempty"`
 	}
 
-	httpResponse struct {
+	HttpResponse struct {
 		Message string             `json:"message"`
 		Errors  []validators.Error `json:"errors,omitempty"`
 	}
 )
 
-func httpError(message string) httpResponse {
-	return httpResponse{
-		Message: message,
+func HttpError(message error) HttpResponse {
+	return HttpResponse{
+		Message: message.Error(),
 	}
 }
 
-func validationError(message string, err []validators.Error) httpResponse {
-	return httpResponse{
+func ValidationError(message string, err []validators.Error) HttpResponse {
+	return HttpResponse{
 		Message: message,
 		Errors:  err,
 	}
