@@ -7,7 +7,7 @@ type (
 		List(ids []string, page uint, perPage uint) []entities.User
 		Get(id string) *entities.User
 		Create(user *entities.User) (*entities.User, error)
-		Update(id string, user *entities.User) *entities.User
+		Update(id string, user *entities.User) (*entities.User, error)
 		Delete(id string) *entities.User
 	}
 )

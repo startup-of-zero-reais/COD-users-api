@@ -54,8 +54,20 @@ func (us *User) Create(user *entities.User) (*entities.User, error) {
 	return createdUser, nil
 }
 
-func (us *User) Update(id string, user *entities.User) *entities.User {
-	return nil
+func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
+	currentUserResponse := us.repo.Get([]string{id}, 1, 0)
+
+	if len(currentUserResponse) == 0 {
+		return nil, errors.New("usuário não encontrado")
+	}
+	currentUser := currentUserResponse[0]
+
+	user.ID = currentUser.ID
+	user.CreatedAt = currentUser.CreatedAt
+
+	updatedUser := us.repo.Save(user)
+
+	return updatedUser, nil
 }
 
 func (us *User) Delete(id string) *entities.User {
