@@ -43,6 +43,8 @@ func (u *User) Save(user *entities.User) *entities.User {
 	return user
 }
 
-func (u *User) Delete(id string) *entities.User {
-	return nil
+func (u *User) Delete(id string) bool {
+	r := u.db.Conn.Delete(new(entities.User), id)
+
+	return r.RowsAffected > 0
 }
