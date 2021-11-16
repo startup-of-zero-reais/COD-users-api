@@ -61,9 +61,34 @@ func (u *User) Create() {
 	u.register(route)
 }
 
+func (u *User) Update() {
+	route := NewRoute(u.Group)
+	route.Method = "PUT"
+	route.Path = "/:id"
+
+	route.register(func(c echo.Context) error {
+		id := c.Param("id")
+
+		user, validateErr := u.validate(c)
+		if validateErr != nil {
+			return c.JSON(http.StatusBadRequest, validationError("erro de validação", validateErr))
+		}
+
+		updatedUser, err := u.Service.Update(id, user)
+		if err != nil {
+			return c.JSON(http.StatusInternalServerError, httpError(err.Error()))
+		}
+
+		return c.JSON(http.StatusOK, updatedUser)
+	})
+
+	u.register(route)
+}
+
 func (u *User) Register() {
 	u.List()
 	u.Create()
+	u.Update()
 
 	for _, route := range u.Routes {
 		route.registerMethod()
