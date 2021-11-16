@@ -1,11 +1,11 @@
 package services
 
 import (
+	"errors"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	repositoriesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/repositories"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/repositories"
-	"log"
 )
 
 type (
@@ -43,16 +43,15 @@ func (us *User) Get(id string) *entities.User {
 	return &users[0]
 }
 
-func (us *User) Create(user *entities.User) *entities.User {
-	isSetUser := us.repo.Get([]string{user.ID}, 1, 0)
+func (us *User) Create(user *entities.User) (*entities.User, error) {
+	isSetUser := us.repo.Search(map[string]interface{}{"email": user.Email})
 	if len(isSetUser) > 0 {
-		log.Fatalln("usuário ja cadastrado")
-		return nil
+		return nil, errors.New("usuário já cadastrado")
 	}
 
 	createdUser := us.repo.Save(user)
 
-	return createdUser
+	return createdUser, nil
 }
 
 func (us *User) Update(id string, user *entities.User) *entities.User {

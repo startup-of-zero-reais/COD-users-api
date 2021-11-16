@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
+	"log"
 )
 
 type (
@@ -26,11 +27,16 @@ func (u *User) Get(ids []string, limit uint, offset uint) []entities.User {
 }
 
 func (u *User) Search(search map[string]interface{}) []entities.User {
-	return nil
+	var users []entities.User
+
+	u.db.Conn.Where(search).Find(&users)
+
+	return users
 }
 
 func (u *User) Save(user *entities.User) *entities.User {
-	if user != nil {
+	log.Println(user)
+	if user.ID != "" {
 		u.db.Conn.Where("id = ?", user.ID).Updates(user)
 	} else {
 		u.db.Conn.Create(user)

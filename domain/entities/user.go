@@ -20,12 +20,6 @@ type (
 	}
 )
 
-func (u *User) New() *User {
-	return &User{
-		Type: student,
-	}
-}
-
 func (u *User) BeforeSave(tx *gorm.DB) (err error) {
 	u.ID = uuid.New().String()
 

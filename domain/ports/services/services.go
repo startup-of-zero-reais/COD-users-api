@@ -6,7 +6,7 @@ type (
 	UserService interface {
 		List(ids []string, page uint, perPage uint) []entities.User
 		Get(id string) *entities.User
-		Create(user *entities.User) *entities.User
+		Create(user *entities.User) (*entities.User, error)
 		Update(id string, user *entities.User) *entities.User
 		Delete(id string) *entities.User
 	}

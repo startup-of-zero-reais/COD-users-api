@@ -50,7 +50,10 @@ func (u *User) Create() {
 			return c.JSON(http.StatusBadRequest, validationError("erro de validação", validateErr))
 		}
 
-		createdUser := u.Service.Create(user)
+		createdUser, err := u.Service.Create(user)
+		if err != nil {
+			return c.JSON(http.StatusBadRequest, httpError(err.Error()))
+		}
 
 		return c.JSON(http.StatusCreated, createdUser)
 	})
@@ -75,7 +78,6 @@ func (u *User) register(route *Route) {
 
 func (u *User) validate(c echo.Context) (*entities.User, []validators.Error) {
 	user := new(entities.User)
-	user.New()
 
 	err := c.Bind(user)
 	if err != nil {
