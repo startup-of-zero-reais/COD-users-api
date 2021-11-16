@@ -4,7 +4,8 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
-	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/routes"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/user_controller"
 	"os"
 )
 
@@ -53,9 +54,9 @@ func (a *Application) Start() {
 }
 
 func (a *Application) Router() {
-	a.e.GET(routes.HealthCheck())
+	a.e.GET(controllers.HealthCheck())
 
-	routes.NewUser(
+	user_controller.New(
 		a.e.Group("/users"),
 		a.db,
 	).Register()

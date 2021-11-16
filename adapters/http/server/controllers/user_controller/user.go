@@ -1,4 +1,4 @@
-package user
+package user_controller
 
 import (
 	"github.com/labstack/echo/v4"
@@ -19,7 +19,7 @@ type (
 	}
 )
 
-func NewUser(g *echo.Group, db *database.Database) *User {
+func New(g *echo.Group, db *database.Database) *User {
 	return &User{
 		Service:   servicesAdapter.NewUser(db),
 		Validator: validatorsAdapter.NewUser(),

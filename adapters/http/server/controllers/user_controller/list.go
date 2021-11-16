@@ -1,4 +1,4 @@
-package user
+package user_controller
 
 import (
 	"github.com/labstack/echo/v4"

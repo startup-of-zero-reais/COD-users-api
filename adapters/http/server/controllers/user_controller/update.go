@@ -1,4 +1,4 @@
-package user
+package user_controller
 
 import (
 	"github.com/labstack/echo/v4"
@@ -6,23 +6,27 @@ import (
 	"net/http"
 )
 
-func (u *User) createHandler(c echo.Context) error {
+func (u *User) updateHandler(c echo.Context) error {
+	id := c.Param("id")
+
 	user, validateErr := u.validate(c)
 	if validateErr != nil {
 		return c.JSON(http.StatusBadRequest, router.ValidationError("erro de validação", validateErr))
 	}
 
-	createdUser, err := u.Service.Create(user)
+	updatedUser, err := u.Service.Update(id, user)
 	if err != nil {
-		return c.JSON(http.StatusBadRequest, router.HttpError(err))
+		return c.JSON(http.StatusInternalServerError, router.HttpError(err))
 	}
 
-	return c.JSON(http.StatusCreated, createdUser)
+	return c.JSON(http.StatusOK, updatedUser)
+
 }
 
-func (u *User) Create() {
+func (u *User) Update() {
 	route := router.NewRoute(u.Group)
-	route.Method = router.POST
-	route.Register(u.createHandler)
+	route.Method = router.PUT
+	route.Path = "/:id"
+	route.Register(u.updateHandler)
 	u.register(route)
 }
