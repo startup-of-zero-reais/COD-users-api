@@ -1,6 +1,10 @@
 package entities
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"time"
+)
 
 type (
 	UserType string
@@ -20,6 +24,16 @@ func (u *User) New() *User {
 	return &User{
 		Type: student,
 	}
+}
+
+func (u *User) BeforeSave(tx *gorm.DB) (err error) {
+	u.ID = uuid.New().String()
+
+	if u.Type == "" {
+		u.Type = student
+	}
+
+	return
 }
 
 const (
