@@ -55,5 +55,8 @@ func (a *Application) Start() {
 func (a *Application) Router() {
 	a.e.GET(routes.HealthCheck())
 
-	routes.NewUser(a.e.Group("/users")).Register()
+	routes.NewUser(
+		a.e.Group("/users"),
+		a.db,
+	).Register()
 }

@@ -2,6 +2,8 @@ package routes
 
 import (
 	"github.com/labstack/echo/v4"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
+	servicesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/services"
 	validatorsAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/validators"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/services"
@@ -19,11 +21,11 @@ type (
 	}
 )
 
-func NewUser(g *echo.Group) *User {
+func NewUser(g *echo.Group, db *database.Database) *User {
 	return &User{
-		Service:   nil,
-		Group:     g,
+		Service:   servicesAdapter.NewUser(db),
 		Validator: validatorsAdapter.NewUser(),
+		Group:     g,
 	}
 }
 
@@ -31,7 +33,8 @@ func (u *User) List() {
 	route := NewRoute(u.Group)
 
 	route.register(func(c echo.Context) error {
-		return c.JSON(http.StatusOK, map[string]string{"message": "List Users ok!"})
+		users := u.Service.List([]string{}, 1, 10)
+		return c.JSON(http.StatusOK, users)
 	})
 
 	u.register(route)
@@ -42,12 +45,14 @@ func (u *User) Create() {
 	route.Method = "POST"
 
 	route.register(func(c echo.Context) error {
-		err := u.validate(c)
-		if err != nil {
-			return c.JSON(http.StatusBadRequest, validationError("erro de validação", err))
+		user, validateErr := u.validate(c)
+		if validateErr != nil {
+			return c.JSON(http.StatusBadRequest, validationError("erro de validação", validateErr))
 		}
 
-		return c.JSON(http.StatusCreated, map[string]string{"message": "fake created"})
+		createdUser := u.Service.Create(user)
+
+		return c.JSON(http.StatusCreated, createdUser)
 	})
 
 	u.register(route)
@@ -68,13 +73,13 @@ func (u *User) register(route *Route) {
 	u.Routes = append(u.Routes, route)
 }
 
-func (u *User) validate(c echo.Context) []validators.Error {
+func (u *User) validate(c echo.Context) (*entities.User, []validators.Error) {
 	user := new(entities.User)
 	user.New()
 
 	err := c.Bind(user)
 	if err != nil {
-		return []validators.Error{
+		return nil, []validators.Error{
 			{
 				Field:   "Bind",
 				Message: err.Error(),
@@ -85,8 +90,8 @@ func (u *User) validate(c echo.Context) []validators.Error {
 	errs := u.Validator.Validate(user)
 
 	if errs != nil && len(errs) > 0 {
-		return errs
+		return nil, errs
 	}
 
-	return nil
+	return user, nil
 }
