@@ -29,22 +29,22 @@ func (us *User) paginate(page uint, perPage uint) uint {
 	return offset
 }
 
-func (us *User) List(ids []string, page uint, perPage uint) []entities.User {
+func (us *User) List(ids []string, page uint, perPage uint) ([]entities.User, int) {
 	offset := us.paginate(page, perPage)
-	users := us.repo.Get(ids, perPage, offset)
+	users, total := us.repo.Get(ids, perPage, offset)
 
-	return users
+	return users, total
 }
 
 func (us *User) Get(id string) *entities.User {
 	findId := []string{id}
-	users := us.repo.Get(findId, 1, 0)
+	users, _ := us.repo.Get(findId, 1, 0)
 
 	return &users[0]
 }
 
 func (us *User) Create(user *entities.User) (*entities.User, error) {
-	isSetUser := us.repo.Search(map[string]interface{}{"email": user.Email})
+	isSetUser, _ := us.repo.Search(map[string]interface{}{"email": user.Email})
 	if len(isSetUser) > 0 {
 		return nil, errors.New("usuário já cadastrado")
 	}
@@ -55,7 +55,7 @@ func (us *User) Create(user *entities.User) (*entities.User, error) {
 }
 
 func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
-	currentUserResponse := us.repo.Get([]string{id}, 1, 0)
+	currentUserResponse, _ := us.repo.Get([]string{id}, 1, 0)
 
 	if len(currentUserResponse) == 0 {
 		return nil, errors.New("usuário não encontrado")
@@ -70,6 +70,6 @@ func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
 	return updatedUser, nil
 }
 
-func (us *User) Delete(id string) *entities.User {
-	return nil
+func (us *User) Delete(id string) bool {
+	return us.repo.Delete(id)
 }
