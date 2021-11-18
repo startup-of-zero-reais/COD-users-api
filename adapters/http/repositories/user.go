@@ -3,6 +3,7 @@ package repositories
 import (
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
+	"gorm.io/gorm"
 )
 
 type (
@@ -17,20 +18,20 @@ func NewUser(db *database.Database) *User {
 	}
 }
 
-func (u *User) Get(ids []string, limit uint, offset uint) []entities.User {
+func (u *User) Get(ids []string, limit uint, offset uint) ([]entities.User, int) {
 	var users []entities.User
 
-	u.db.Conn.Find(&users, ids).Limit(int(limit)).Offset(int(offset))
+	u.db.Conn.Limit(int(limit)).Offset(int(offset)).Find(&users, ids)
 
-	return users
+	return users, u.TotalRecords()
 }
 
-func (u *User) Search(search map[string]interface{}) []entities.User {
+func (u *User) Search(search map[string]interface{}) ([]entities.User, int) {
 	var users []entities.User
 
 	u.db.Conn.Where(search).Find(&users)
 
-	return users
+	return users, u.TotalRecords()
 }
 
 func (u *User) Save(user *entities.User) *entities.User {
@@ -44,7 +45,19 @@ func (u *User) Save(user *entities.User) *entities.User {
 }
 
 func (u *User) Delete(id string) bool {
-	r := u.db.Conn.Delete(new(entities.User), id)
+	r := u.db.Conn.Where("id = ?", id).Delete(new(entities.User))
 
 	return r.RowsAffected > 0
+}
+
+func (u *User) TotalRecords() int {
+	var find []entities.User
+	var total int
+
+	u.db.Conn.Select("id").FindInBatches(&find, 10000, func(tx *gorm.DB, batch int) error {
+		total = int(tx.RowsAffected)
+		return nil
+	})
+
+	return total
 }
