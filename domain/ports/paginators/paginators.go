@@ -1,5 +1,7 @@
 package paginators
 
+import "github.com/labstack/echo/v4"
+
 type (
 	Metadata struct {
 		Page    uint `json:"page,omitempty"`
@@ -8,7 +10,6 @@ type (
 	}
 
 	Links struct {
-		Self     string `json:"self,omitempty"`
 		Next     string `json:"next,omitempty"`
 		Previous string `json:"previous,omitempty"`
 		First    string `json:"first,omitempty"`
@@ -16,12 +17,20 @@ type (
 	}
 
 	Paginated struct {
-		Data     []interface{} `json:"data,omitempty"`
-		Metadata Metadata      `json:"metadata"`
-		Links    Links         `json:"links"`
+		Data     interface{} `json:"data,omitempty"`
+		Metadata Metadata    `json:"_metadata"`
+		Links    Links       `json:"_links"`
 	}
 
 	Paginator interface {
 		Paginate(items []interface{}) *Paginated
+		GetPagination(c echo.Context)
+	}
+
+	Pager struct {
+		BaseURL string
+		PerPage uint
+		Page    uint
+		Total   uint
 	}
 )
