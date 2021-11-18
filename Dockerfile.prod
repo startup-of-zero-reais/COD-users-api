@@ -1,0 +1,22 @@
+FROM golang:1.16-alpine AS BUILDER
+
+RUN apk add --update curl bash git
+
+WORKDIR /go/src
+
+COPY . .
+
+RUN go mod tidy
+
+RUN go build
+
+RUN chmod +x ./COD-users-api
+
+FROM BUILDER AS RUNNER
+
+WORKDIR /go/build
+
+COPY --from=BUILDER /go/src/.env.prod ./.env
+COPY --from=BUILDER /go/src/COD-users-api ./api
+
+CMD ["./api"]
