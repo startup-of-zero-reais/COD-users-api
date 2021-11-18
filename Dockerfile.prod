@@ -12,6 +12,8 @@ RUN go build
 
 RUN chmod +x ./COD-users-api
 
+RUN touch .env.prod
+
 FROM BUILDER AS RUNNER
 
 WORKDIR /go/build
