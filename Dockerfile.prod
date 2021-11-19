@@ -12,10 +12,10 @@ RUN go build
 
 RUN chmod +x ./COD-users-api
 
-FROM scratch AS RUNNER
+FROM alpine AS RUNNER
 
 WORKDIR /go/build
 
 COPY --from=BUILDER /go/src/COD-users-api ./api
 
-CMD ["./api"]
+CMD ./api
