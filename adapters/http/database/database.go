@@ -4,6 +4,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
+	"os"
 	"time"
 )
 
@@ -20,9 +21,15 @@ type (
 )
 
 func NewDatabase() *Database {
+	env := "development"
+
+	if e := os.Getenv("APPLICATION_ENV"); e != "" {
+		env = e
+	}
+
 	return &Database{
 		Dsn: "",
-		Env: "development",
+		Env: env,
 	}
 }
 
@@ -43,9 +50,11 @@ func (d *Database) Connect() error {
 	sql.SetMaxOpenConns(5)
 	sql.SetConnMaxLifetime(time.Second)
 
-	err = db.AutoMigrate(&entities.User{})
-	if err != nil {
-		return err
+	if d.Env == "development" {
+		err = db.AutoMigrate(&entities.User{})
+		if err != nil {
+			return err
+		}
 	}
 
 	d.Conn = db
