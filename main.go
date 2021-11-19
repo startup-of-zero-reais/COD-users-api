@@ -8,7 +8,7 @@ import (
 import "github.com/joho/godotenv"
 
 func init() {
-	if l := os.Getenv("APPLICATION_ENV"); l != "development" {
+	if l := os.Getenv("APPLICATION_ENV"); l == "development" {
 		err := godotenv.Load()
 		if err != nil {
 			log.Fatalf("Error loading .env file")
