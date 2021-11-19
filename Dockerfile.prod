@@ -12,13 +12,10 @@ RUN go build
 
 RUN chmod +x ./COD-users-api
 
-RUN echo "APPLICATION_ENV=production" >> .env.prod
-
-FROM BUILDER AS RUNNER
+FROM scratch AS RUNNER
 
 WORKDIR /go/build
 
-COPY --from=BUILDER /go/src/.env.prod ./.env
 COPY --from=BUILDER /go/src/COD-users-api ./api
 
 CMD ["./api"]

@@ -14,22 +14,18 @@ type (
 	}
 
 	Database struct {
-		Dsn  string
-		Conn *gorm.DB
-		Env  string
+		Dsn               string
+		Conn              *gorm.DB
+		Env               string
+		ShouldAutoMigrate string
 	}
 )
 
 func NewDatabase() *Database {
-	env := "development"
-
-	if e := os.Getenv("APPLICATION_ENV"); e != "" {
-		env = e
-	}
-
 	return &Database{
-		Dsn: "",
-		Env: env,
+		Dsn:               getEnv("MYSQL_COD_DSN", ""),
+		Env:               getEnv("APPLICATION_ENV", "development"),
+		ShouldAutoMigrate: getEnv("MUST_AUTOMIGRATE", "false"),
 	}
 }
 
@@ -50,7 +46,7 @@ func (d *Database) Connect() error {
 	sql.SetMaxOpenConns(5)
 	sql.SetConnMaxLifetime(time.Second)
 
-	if d.Env == "development" {
+	if d.ShouldAutoMigrate == "true" {
 		err = db.AutoMigrate(&entities.User{})
 		if err != nil {
 			return err
@@ -60,4 +56,12 @@ func (d *Database) Connect() error {
 	d.Conn = db
 
 	return err
+}
+
+func getEnv(key, _default string) string {
+	if envVar := os.Getenv(key); envVar != "" {
+		return envVar
+	}
+
+	return _default
 }
