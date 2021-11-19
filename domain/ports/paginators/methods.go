@@ -3,6 +3,7 @@ package paginators
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"os"
 	"strconv"
 )
 
@@ -48,7 +49,7 @@ func (p *Pager) GetPagination(c echo.Context) (uint, uint) {
 }
 
 func (p *Pager) MountUrl(path string) string {
-	base := "http://localhost:8080"
+	base := getEnv("APPLICATION_HOST", "http://localhost:8080")
 	return fmt.Sprintf("%s%s?%s", base, p.BaseURL, path)
 }
 
@@ -92,4 +93,12 @@ func (p *Pager) GetLast() string {
 	}
 
 	return p.MountUrl(p.MountPage(last+1, p.PerPage))
+}
+
+func getEnv(key, _default string) string {
+	if e := os.Getenv(key); e != "" {
+		return e
+	}
+
+	return _default
 }
