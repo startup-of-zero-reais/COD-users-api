@@ -4,7 +4,6 @@ import (
 	"github.com/google/uuid"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
-	"log"
 	"time"
 )
 
@@ -49,7 +48,6 @@ func (u *User) HashPassword() error {
 }
 
 func (u *User) IsValidPassword(password string) bool {
-	log.Println(u.Password, password)
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
 }
