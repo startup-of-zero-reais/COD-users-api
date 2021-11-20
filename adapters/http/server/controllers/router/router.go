@@ -37,16 +37,8 @@ func NewRoute(g *echo.Group) *Route {
 	}
 }
 
-func (r *Route) Route() (string, func(c echo.Context) error) {
-	if r.Middlewares[r.Path] != nil && len(r.Middlewares[r.Path]) > 0 {
-		for _, middleware := range r.Middlewares[r.Path] {
-			parsedMiddleware := (func(c echo.HandlerFunc) echo.HandlerFunc)(middleware)
-
-			r.Group.Use(parsedMiddleware)
-		}
-		return r.Path, r.Handler
-	}
-	return r.Path, r.Handler
+func (r *Route) Route() (string, func(c echo.Context) error, []echo.MiddlewareFunc) {
+	return r.Path, r.Handler, r.extractMiddlewares()
 }
 
 func (r *Route) Use(middlewares ...MiddlewareHandler) {
@@ -61,19 +53,21 @@ func (r *Route) Register(handler Handler) {
 
 func (r *Route) RegisterRoutes() {
 	if r.IsValidRoute() {
+		path, handler, middlewares := r.Route()
+
 		switch r.Method {
 		case "GET":
-			r.Group.GET(r.Route())
+			r.Group.GET(path, handler, middlewares...)
 		case "POST":
-			r.Group.POST(r.Route())
+			r.Group.POST(path, handler, middlewares...)
 		case "PUT":
-			r.Group.PUT(r.Route())
+			r.Group.PUT(path, handler, middlewares...)
 		case "PATCH":
-			r.Group.PATCH(r.Route())
+			r.Group.PATCH(path, handler, middlewares...)
 		case "DELETE":
-			r.Group.DELETE(r.Route())
+			r.Group.DELETE(path, handler, middlewares...)
 		default:
-			r.Group.GET(r.Route())
+			r.Group.GET(path, handler, middlewares...)
 		}
 	}
 }
@@ -92,6 +86,15 @@ func (r *Route) IsValidRoute() bool {
 	}
 
 	return false
+}
+
+func (r *Route) extractMiddlewares() []echo.MiddlewareFunc {
+	var m []echo.MiddlewareFunc
+	for _, middleware := range r.Middlewares[r.Path] {
+		m = append(m, (func(c echo.HandlerFunc) echo.HandlerFunc)(middleware))
+	}
+
+	return m
 }
 
 func contains(haystack []Method, el Method) bool {
