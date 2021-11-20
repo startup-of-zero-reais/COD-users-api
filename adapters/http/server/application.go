@@ -35,7 +35,11 @@ func makeCodDbConnection() (*database.Database, error) {
 
 func NewApplication() *Application {
 	s := echo.New()
-	s.Use(middleware.Logger())
+	s.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
+		Format: `{"time":"${time_rfc3339}","id":"${id}","remote_ip":"${remote_ip}",` +
+			`"host":"${host}","method":"${method}","uri":"${uri}","user_agent":"${user_agent}",` +
+			`"status":${status},"error":"${error}","latency_human":"${latency_human}"` + "\n",
+	}))
 
 	db, err := makeCodDbConnection()
 	if err != nil {
