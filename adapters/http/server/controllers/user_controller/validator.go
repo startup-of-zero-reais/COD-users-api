@@ -13,6 +13,7 @@ func (u *User) validate(c echo.Context) (*entities.User, []validators.Error) {
 	if err != nil {
 		return nil, validators.NewValidatorErrors(err, "Bind")
 	}
+	user.ID = c.Param("id")
 
 	errs := u.Validator.Validate(user)
 
