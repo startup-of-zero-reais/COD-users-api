@@ -5,7 +5,6 @@ import (
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
 	"os"
-	"time"
 )
 
 type (
@@ -35,16 +34,10 @@ func (d *Database) Connect() error {
 		&gorm.Config{},
 	)
 
-	sql, err := db.DB()
+	_, err = db.DB()
 	if err != nil {
 		return err
 	}
-
-	sql.SetMaxIdleConns(5)
-	sql.SetConnMaxIdleTime(time.Second)
-
-	sql.SetMaxOpenConns(5)
-	sql.SetConnMaxLifetime(time.Second)
 
 	if d.ShouldAutoMigrate == "true" {
 		err = db.AutoMigrate(&entities.User{})
