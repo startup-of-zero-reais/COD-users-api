@@ -49,7 +49,14 @@ func (us *User) Create(user *entities.User) (*entities.User, error) {
 		return nil, errors.New("usuário já cadastrado")
 	}
 
+	user.NewPassword = user.Password
+	err := user.HashPassword()
+	if err != nil {
+		return nil, err
+	}
+
 	createdUser := us.repo.Save(user)
+	createdUser.HideSensitiveFields()
 
 	return createdUser, nil
 }
@@ -62,10 +69,32 @@ func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
 	}
 	currentUser := currentUserResponse[0]
 
+	if user.Password != "" {
+		if !currentUser.IsValidPassword(user.Password) {
+			return nil, errors.New("credenciais inválidas")
+		}
+
+		err := user.HashPassword()
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		user.Password = currentUser.Password
+	}
+
 	user.ID = currentUser.ID
 	user.CreatedAt = currentUser.CreatedAt
 
+	if user.Email == "" {
+		user.Email = currentUser.Email
+	}
+	if user.Type == ("") {
+		user.Type = currentUser.Type
+	}
+
 	updatedUser := us.repo.Save(user)
+	updatedUser.HideSensitiveFields()
 
 	return updatedUser, nil
 }
