@@ -32,8 +32,14 @@ func (us *User) paginate(page uint, perPage uint) uint {
 func (us *User) List(ids []string, page uint, perPage uint) ([]entities.User, int) {
 	offset := us.paginate(page, perPage)
 	users, total := us.repo.Get(ids, perPage, offset)
+	var usersHiddenFields []entities.User
 
-	return users, total
+	for _, u := range users {
+		(&u).HideSensitiveFields()
+		usersHiddenFields = append(usersHiddenFields, u)
+	}
+
+	return usersHiddenFields, total
 }
 
 func (us *User) Get(id string) *entities.User {
