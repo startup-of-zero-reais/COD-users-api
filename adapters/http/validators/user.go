@@ -31,10 +31,14 @@ func NewUser() *User {
 		return nil
 	}
 
-	return &User{
+	user := &User{
 		validate: validate,
 		trans:    trans,
 	}
+
+	user.translateOverride()
+
+	return user
 }
 
 func (u *User) Validate(user *entities.User) []validators.Error {
@@ -73,4 +77,20 @@ func (u *User) Validate(user *entities.User) []validators.Error {
 	}
 
 	return nil
+}
+
+func (u *User) translateOverride() {
+	_ = u.validate.RegisterTranslation("required_if", u.trans, func(ut ut.Translator) error {
+		return ut.Add("required_if", "{0} é um campo obrigatório", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("required_if", fe.Field())
+		return t
+	})
+
+	_ = u.validate.RegisterTranslation("required_with", u.trans, func(ut ut.Translator) error {
+		return ut.Add("required_with", "{0} é um campo obrigatório", true)
+	}, func(ut ut.Translator, fe validator.FieldError) string {
+		t, _ := ut.T("required_with", fe.Field())
+		return t
+	})
 }
