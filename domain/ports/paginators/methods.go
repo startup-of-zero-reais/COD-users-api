@@ -32,8 +32,9 @@ func (p *Pager) Paginate(items ...interface{}) *Paginated {
 }
 
 func (p *Pager) GetPagination(c echo.Context) (uint, uint) {
-	page := int(p.Page)
-	perPage := int(p.PerPage)
+	page, _ := strconv.Atoi(getEnv("DEFAULT_PAGINATOR_PAGE", "1"))
+	perPage, _ := strconv.Atoi(getEnv("DEFAULT_PAGINATOR_PER_PAGE", "20"))
+
 	if pp := c.QueryParam("per_page"); pp != "" {
 		perPage, _ = strconv.Atoi(pp)
 	}
