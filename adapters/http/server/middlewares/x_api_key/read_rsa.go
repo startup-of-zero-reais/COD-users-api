@@ -32,6 +32,8 @@ func NewEncryptor() *Encryptor {
 			log.Printf("Erro ao gerar key pairs: %s", err.Error())
 			return encryptor
 		}
+
+		return nil
 	}
 
 	block, _ := pem.Decode(privateKey)
