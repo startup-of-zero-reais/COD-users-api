@@ -33,7 +33,7 @@ func NewEncryptor() *Encryptor {
 			return encryptor
 		}
 
-		return nil
+		return encryptor
 	}
 
 	block, _ := pem.Decode(privateKey)
