@@ -32,8 +32,14 @@ func (us *User) paginate(page uint, perPage uint) uint {
 func (us *User) List(ids []string, page uint, perPage uint) ([]entities.User, int) {
 	offset := us.paginate(page, perPage)
 	users, total := us.repo.Get(ids, perPage, offset)
+	var usersHiddenFields []entities.User
 
-	return users, total
+	for _, u := range users {
+		(&u).HideSensitiveFields()
+		usersHiddenFields = append(usersHiddenFields, u)
+	}
+
+	return usersHiddenFields, total
 }
 
 func (us *User) Get(id string) *entities.User {
@@ -49,7 +55,14 @@ func (us *User) Create(user *entities.User) (*entities.User, error) {
 		return nil, errors.New("usuário já cadastrado")
 	}
 
+	user.NewPassword = user.Password
+	err := user.HashPassword()
+	if err != nil {
+		return nil, err
+	}
+
 	createdUser := us.repo.Save(user)
+	createdUser.HideSensitiveFields()
 
 	return createdUser, nil
 }
@@ -62,10 +75,32 @@ func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
 	}
 	currentUser := currentUserResponse[0]
 
+	if user.Password != "" {
+		if !currentUser.IsValidPassword(user.Password) {
+			return nil, errors.New("credenciais inválidas")
+		}
+
+		err := user.HashPassword()
+
+		if err != nil {
+			return nil, err
+		}
+	} else {
+		user.Password = currentUser.Password
+	}
+
 	user.ID = currentUser.ID
 	user.CreatedAt = currentUser.CreatedAt
 
+	if user.Email == "" {
+		user.Email = currentUser.Email
+	}
+	if user.Type == ("") {
+		user.Type = currentUser.Type
+	}
+
 	updatedUser := us.repo.Save(user)
+	updatedUser.HideSensitiveFields()
 
 	return updatedUser, nil
 }

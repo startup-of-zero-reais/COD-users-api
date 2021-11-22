@@ -11,4 +11,6 @@ RUN go mod tidy
 
 EXPOSE 8080
 
+ENV APPLICATION_ENV=development
+
 ENTRYPOINT [ "top" ]
