@@ -4,3 +4,5 @@ gin-bin
 .docker/dbdata/
 .env
 .env.prod
+id_rsa
+id_rsa.pub
