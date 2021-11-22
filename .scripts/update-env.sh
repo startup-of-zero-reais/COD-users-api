@@ -9,7 +9,7 @@ function send_file() {
     	echo "Voce deve instalar a CLI 2.0 da AWS"
     	echo "https://docs.aws.amazon.com/pt_br/cli/latest/userguide/install-cliv2.html"
 	else
-		aws s3api put-object --bucket code-craft-envs --key $APPLICATION_S3_FOLDER/.env --body /run/media/jean/HD2/www/code-craft/COD-users-api/$ENV_FILE
+		aws s3api put-object --bucket code-craft-envs --key $APPLICATION_S3_FOLDER/.env --body $ENV_LOCATION/$ENV_FILE
 	fi
 }
 
