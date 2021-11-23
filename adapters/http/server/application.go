@@ -59,6 +59,7 @@ func (a *Application) Start() {
 
 func (a *Application) Router() {
 	a.e.GET(controllers.HealthCheck())
+	a.e.POST(controllers.GenKey())
 
 	user_controller.New(
 		a.e.Group("/users"),

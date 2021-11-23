@@ -1,4 +1,4 @@
-read -p "Tecle enter para enviar sua .env.prod para produção: " o
+read -r -p "Tecle enter para enviar sua .env.prod para produção: " o
 
 ENV_LOCATION=$(pwd)
 APPLICATION_S3_FOLDER="cod-users-api"
@@ -16,7 +16,7 @@ function send_file() {
 ENV_FILE=$o
 
 function env_file() {
-	if [[ $o != "" ]]; then
+	if [[ $o == "" ]]; then
 		ENV_FILE=".env.prod"
 		echo "Iniciando envio de: .env.prod..."
 	else

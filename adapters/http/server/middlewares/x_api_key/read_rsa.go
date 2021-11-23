@@ -1,13 +1,9 @@
 package x_api_key
 
 import (
-	"bytes"
-	"crypto"
 	"crypto/rand"
 	"crypto/rsa"
-	"crypto/sha1"
 	"crypto/x509"
-	"encoding/base64"
 	"encoding/pem"
 	"fmt"
 	"log"
@@ -110,44 +106,6 @@ func (e *Encryptor) GenerateKeyPairs() error {
 	e.PublicKey = publicKey
 
 	return nil
-}
-
-func (e *Encryptor) Encrypt(secret string) []byte {
-	secretByte := []byte(secret)
-	rnd := rand.Reader
-
-	pk, err := rsa.GenerateKey(rnd, 2048)
-	if err != nil {
-		return nil
-	}
-
-	hashed := sha1.Sum(secretByte)
-	signature, err := rsa.SignPKCS1v15(rnd, pk, crypto.SHA1, hashed[:])
-	if err != nil {
-		return nil
-	}
-
-	key := &bytes.Buffer{}
-	encoding := base64.NewEncoder(base64.StdEncoding, key)
-	_, err = encoding.Write(signature)
-	if err != nil {
-		return nil
-	}
-
-	log.Printf("Sig: %s", key.String())
-
-	log.Println(e.Decrypt(hashed[:], pk, signature))
-
-	return signature
-}
-
-func (e *Encryptor) Decrypt(ciphertext []byte, pk *rsa.PrivateKey, sig []byte) bool {
-	err := rsa.VerifyPKCS1v15(&pk.PublicKey, crypto.SHA1, ciphertext, sig)
-	if err != nil {
-		return false
-	}
-
-	return err == nil
 }
 
 func (e *Encryptor) GetFileContent(file string) ([]byte, error) {
