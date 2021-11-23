@@ -1,7 +1,9 @@
 package entities
 
 import (
+	"fmt"
 	"github.com/google/uuid"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"golang.org/x/crypto/bcrypt"
 	"gorm.io/gorm"
 	"time"
@@ -18,6 +20,7 @@ type (
 		Type        UserType  `json:"user_type" gorm:"user_type"`
 		Password    string    `json:"password,omitempty" gorm:"password" validate:"required_with=Email|min=6"`
 		NewPassword string    `json:"new_password,omitempty" gorm:"-" validate:"required_with=Password"`
+		Href        string    `json:"href,omitempty" gorm:"-" validate:"-"`
 		CreatedAt   time.Time `json:"created_at" gorm:"created_at"`
 		UpdatedAt   time.Time `json:"updated_at" gorm:"updated_at"`
 	}
@@ -55,6 +58,16 @@ func (u *User) IsValidPassword(password string) bool {
 func (u *User) HideSensitiveFields() {
 	u.Password = ""
 	u.NewPassword = ""
+}
+
+func (u *User) GetEmbedded() {
+	if u.ID != "" {
+		baseURL := utilities.GetEnv("APPLICATION_HOST", "http://localhost:8080")
+		u.Href = fmt.Sprintf("%s/users?ids=%s&page=1&per_page=1", baseURL, u.ID)
+		return
+	}
+
+	u.Href = ""
 }
 
 const (
