@@ -3,6 +3,8 @@ package user_controller
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/router"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/resources"
 	"net/http"
 	"net/url"
 	"strings"
@@ -34,9 +36,20 @@ func (u *User) listHandler(c echo.Context) error {
 
 	u.Paginator.Total = uint(total)
 
-	paginated := u.Paginator.Paginate(users)
+	paginated := u.Paginator.Paginate(
+		u.GetCollection(users),
+	)
 
 	return c.JSON(http.StatusOK, paginated)
+}
+
+func (u *User) GetCollection(users []entities.User) []interface{ resources.Resource } {
+	var _users []interface{ resources.Resource }
+	for _, user := range users {
+		_users = append(_users, &user)
+	}
+
+	return _users
 }
 
 func (u *User) List() {

@@ -3,16 +3,20 @@ package paginators
 import (
 	"fmt"
 	"github.com/labstack/echo/v4"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/resources"
 	"os"
 	"strconv"
 )
 
-func (p *Pager) Paginate(items ...interface{}) *Paginated {
-	var data interface{}
+func (p *Pager) Paginate(items []interface{ resources.Resource }) *Paginated {
+	var data []resources.Resource
 	if len(items) > 0 {
-		data = items[0]
+		for _, item := range items {
+			item.GetEmbedded()
+			data = append(data, item)
+		}
 	} else {
-		data = []interface{}{}
+		data = make([]resources.Resource, 1)
 	}
 
 	return &Paginated{
