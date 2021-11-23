@@ -1,6 +1,9 @@
 package paginators
 
-import "github.com/labstack/echo/v4"
+import (
+	"github.com/labstack/echo/v4"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/resources"
+)
 
 type (
 	Metadata struct {
@@ -23,8 +26,8 @@ type (
 	}
 
 	Paginator interface {
-		Paginate(items []interface{}) *Paginated
-		GetPagination(c echo.Context)
+		Paginate(items []interface{ resources.Resource }) *Paginated
+		GetPagination(c echo.Context) (uint, uint)
 	}
 
 	Pager struct {
