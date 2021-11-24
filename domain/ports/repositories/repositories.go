@@ -9,4 +9,9 @@ type (
 		Save(user *entities.User) *entities.User
 		Delete(id string) bool
 	}
+
+	TokenRepository interface {
+		Get(id string) entities.RecoverToken
+		Generate(token string) entities.RecoverToken
+	}
 )
