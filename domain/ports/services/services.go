@@ -14,4 +14,9 @@ type (
 	AuthService interface {
 		Get(email string) *entities.User
 	}
+
+	RecoverAccountService interface {
+		SendEmail(email string) bool
+		UpdatePassword(token, email, newPassword string) error
+	}
 )
