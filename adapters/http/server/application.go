@@ -5,6 +5,7 @@ import (
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/auth_controller"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/user_controller"
 	"os"
 )
@@ -61,6 +62,10 @@ func (a *Application) Router() {
 	a.e.GET(controllers.HealthCheck())
 	a.e.POST(controllers.GenKey())
 
+	auth_controller.New(
+		a.e.Group("/auth"),
+		a.db,
+	).Register()
 	user_controller.New(
 		a.e.Group("/users"),
 		a.db,
