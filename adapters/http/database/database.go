@@ -40,7 +40,7 @@ func (d *Database) Connect() error {
 	}
 
 	if d.ShouldAutoMigrate == "true" {
-		err = db.AutoMigrate(&entities.User{})
+		err = db.AutoMigrate(&entities.User{}, &entities.RecoverToken{})
 		if err != nil {
 			return err
 		}
