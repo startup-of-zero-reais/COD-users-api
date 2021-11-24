@@ -10,4 +10,8 @@ type (
 		Update(id string, user *entities.User) (*entities.User, error)
 		Delete(id string) bool
 	}
+
+	AuthService interface {
+		Get(email string) *entities.User
+	}
 )
