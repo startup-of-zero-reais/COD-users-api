@@ -20,7 +20,7 @@ type (
 		Type        UserType  `json:"user_type" gorm:"user_type"`
 		Password    string    `json:"password,omitempty" gorm:"password" validate:"required_with=Email|min=6"`
 		NewPassword string    `json:"new_password,omitempty" gorm:"-" validate:"required_with=Password"`
-		Href        string    `json:"href,omitempty" gorm:"-" validate:"-"`
+		Href        string    `json:"_href,omitempty" gorm:"-" validate:"-"`
 		CreatedAt   time.Time `json:"created_at" gorm:"created_at"`
 		UpdatedAt   time.Time `json:"updated_at" gorm:"updated_at"`
 	}
