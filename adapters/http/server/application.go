@@ -6,6 +6,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/auth_controller"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/recover_account_controller"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/user_controller"
 	"os"
 )
@@ -68,6 +69,10 @@ func (a *Application) Router() {
 	).Register()
 	user_controller.New(
 		a.e.Group("/users"),
+		a.db,
+	).Register()
+	recover_account_controller.New(
+		a.e.Group("/recover-account"),
 		a.db,
 	).Register()
 }
