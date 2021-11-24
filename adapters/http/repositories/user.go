@@ -36,7 +36,7 @@ func (u *User) Search(search map[string]interface{}) ([]entities.User, int) {
 
 func (u *User) Save(user *entities.User) *entities.User {
 	if user.ID != "" {
-		u.db.Conn.Where("id = ?", user.ID).Updates(user)
+		u.db.Conn.Where("user_id = ?", user.ID).Updates(user)
 	} else {
 		u.db.Conn.Create(user)
 	}
@@ -45,7 +45,7 @@ func (u *User) Save(user *entities.User) *entities.User {
 }
 
 func (u *User) Delete(id string) bool {
-	r := u.db.Conn.Where("id = ?", id).Delete(new(entities.User))
+	r := u.db.Conn.Where("user_id = ?", id).Delete(new(entities.User))
 
 	return r.RowsAffected > 0
 }
@@ -54,7 +54,7 @@ func (u *User) TotalRecords() int {
 	var find []entities.User
 	var total int
 
-	u.db.Conn.Select("id").FindInBatches(&find, 10000, func(tx *gorm.DB, batch int) error {
+	u.db.Conn.Select("user_id").FindInBatches(&find, 10000, func(tx *gorm.DB, batch int) error {
 		total = int(tx.RowsAffected)
 		return nil
 	})

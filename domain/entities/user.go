@@ -13,7 +13,7 @@ type (
 	UserType string
 
 	User struct {
-		ID          string    `json:"id" gorm:"primaryKey;user_id;type:varchar(36);"`
+		ID          string    `json:"id" gorm:"primaryKey;column:user_id;type:varchar(36);"`
 		Name        string    `json:"name" gorm:"name" validate:"required"`
 		Lastname    string    `json:"lastname" gorm:"lastname" validate:"required"`
 		Email       string    `json:"email" gorm:"email;unique" validate:"required_if=ID ''|email"`
