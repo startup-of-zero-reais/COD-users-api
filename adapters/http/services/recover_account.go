@@ -1,10 +1,12 @@
 package services
 
 import (
+	"errors"
 	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	repositoriesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/repositories"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/repositories"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"log"
@@ -21,11 +23,12 @@ type (
 
 func NewRecoverAccount(db *database.Database) *RecoverAccount {
 	return &RecoverAccount{
-		repo: repositoriesAdapter.NewUser(db),
+		repo:      repositoriesAdapter.NewUser(db),
+		tokenRepo: repositoriesAdapter.NewToken(db),
 	}
 }
 
-func (r *RecoverAccount) genToken(email string) error {
+func (r *RecoverAccount) genToken(email string) (*entities.RecoverToken, error) {
 	claims := JwtCustomClaims{
 		Name:  "recover-token",
 		Email: email,
@@ -34,14 +37,18 @@ func (r *RecoverAccount) genToken(email string) error {
 		},
 	}
 	token := jwt.NewWithClaims(jwt.SigningMethodHS256, claims)
-	t, err := token.SignedString([]byte("rec0v3r-seCr37"))
+	tokenSecret := utilities.GetEnv("RECOVER_SECRET", "123456")
+	t, err := token.SignedString([]byte(tokenSecret))
 	if err != nil {
-		return err
+		return nil, err
 	}
 
-	r.tokenRepo.Generate(t)
+	generatedToken := r.tokenRepo.Generate(t, email)
+	if generatedToken == nil {
+		return nil, errors.New("falha ao gerar token")
+	}
 
-	return nil
+	return generatedToken, nil
 }
 
 func (r *RecoverAccount) SendEmail(email string) bool {
@@ -55,9 +62,77 @@ func (r *RecoverAccount) SendEmail(email string) bool {
 		return false
 	}
 
+	token, err := r.genToken(email)
+	if err != nil {
+		log.Println(err.Error())
+		return false
+	}
+
+	textMessage := fmt.Sprintf(
+		"Mensagem de fato que vai pro e-mail.\nSeu token: %s",
+		token.ID,
+	)
+
+	err = sendMail(email, "Assunto do e-mail", textMessage)
+	if err != nil {
+		return false
+	}
+
+	return true
+
+}
+
+func (r *RecoverAccount) GetToken(id string) (*entities.RecoverToken, error) {
+	token := r.tokenRepo.Get(id)
+
+	if token == nil {
+		return nil, errors.New("token não encontrado ou inválido")
+	}
+
+	return token, nil
+}
+
+func (r *RecoverAccount) ValidateToken(token string) error {
+	parsedToken, err := jwt.ParseWithClaims(token, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
+		tokenSecret := utilities.GetEnv("RECOVER_SECRET", "123456")
+		return []byte(tokenSecret), nil
+	})
+	if err != nil {
+		return err
+	}
+
+	if claims, ok := parsedToken.Claims.(*JwtCustomClaims); ok && parsedToken.Valid {
+		fmt.Printf("%v %v", claims.Email, claims.StandardClaims.ExpiresAt)
+	}
+
+	return nil
+}
+
+func (r *RecoverAccount) UpdatePassword(email, newPassword string) error {
+	searchField := map[string]interface{}{
+		"email": email,
+	}
+	users, _ := r.repo.Search(searchField)
+	if len(users) <= 0 {
+		return errors.New("nenhum usuário corresponde ao e-mail")
+	}
+
+	user := &users[0]
+	user.NewPassword = newPassword
+	err := user.HashPassword()
+	if err != nil {
+		return err
+	}
+
+	r.repo.Save(user)
+
+	return nil
+}
+
+func sendMail(toMail, subject, theMessage string) error {
 	from := utilities.GetEnv("SMTP_EMAIL", "jean.carlosmolossi@gmail.com")
 	password := utilities.GetEnv("SMTP_PASSWORD", "123456")
-	to := []string{email}
+	to := []string{toMail}
 
 	smtpHost := utilities.GetEnv("SMTP_HOST", "smtp.gmail.com")
 	smtpPort := utilities.GetEnv("SMTP_PORT", "587")
@@ -67,8 +142,8 @@ func (r *RecoverAccount) SendEmail(email string) bool {
 	textMessage := fmt.Sprintf(
 		"To: %s\r\nSubject: %s\r\n\r\n%s",
 		to,
-		"Assunto do e-mail",
-		"Mensagem de fato que vai pro e-mail",
+		subject,
+		theMessage,
 	)
 
 	message := []byte(textMessage)
@@ -77,14 +152,8 @@ func (r *RecoverAccount) SendEmail(email string) bool {
 	err := smtp.SendMail(addr, auth, from, to, message)
 	if err != nil {
 		log.Println(err.Error())
-		return false
+		return err
 	}
-
-	return true
-
-}
-
-func (r *RecoverAccount) UpdatePassword(token, email, newPassword string) error {
 
 	return nil
 }
