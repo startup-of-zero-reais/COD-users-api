@@ -1,6 +1,10 @@
 package entities
 
-import "time"
+import (
+	"github.com/google/uuid"
+	"gorm.io/gorm"
+	"time"
+)
 
 type (
 	RecoverToken struct {
@@ -10,3 +14,9 @@ type (
 		CreatedAt time.Time `json:"created_at"`
 	}
 )
+
+func (r *RecoverToken) BeforeCreate(_ *gorm.DB) error {
+	r.ID = uuid.New().String()
+
+	return nil
+}
