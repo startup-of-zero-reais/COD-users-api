@@ -11,7 +11,7 @@ type (
 	}
 
 	TokenRepository interface {
-		Get(id string) entities.RecoverToken
-		Generate(token string) entities.RecoverToken
+		Get(id string) *entities.RecoverToken
+		Generate(token, email string) *entities.RecoverToken
 	}
 )
