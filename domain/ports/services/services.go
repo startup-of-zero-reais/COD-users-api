@@ -17,6 +17,8 @@ type (
 
 	RecoverAccountService interface {
 		SendEmail(email string) bool
-		UpdatePassword(token, email, newPassword string) error
+		GetToken(id string) (*entities.RecoverToken, error)
+		ValidateToken(token string) error
+		UpdatePassword(email, newPassword string) error
 	}
 )
