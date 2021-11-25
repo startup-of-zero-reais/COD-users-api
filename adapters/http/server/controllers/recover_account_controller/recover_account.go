@@ -5,6 +5,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	paginatorsAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/paginators"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/router"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/middlewares/x_api_key"
 	servicesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/services"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/paginators"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/services"
@@ -58,11 +59,22 @@ func (r *RecoverAccount) Recover() {
 }
 
 func (r *RecoverAccount) Register() {
+	r.Middlewares()
+
 	r.Recover()
+	r.UpdatePassword()
 
 	for _, r := range r.Routes {
 		r.RegisterRoutes()
 	}
+}
+
+func (r *RecoverAccount) Middlewares() {
+	apiAuth := x_api_key.NewXApiKey()
+	checkMiddleware := (func(h echo.HandlerFunc) echo.HandlerFunc)(apiAuth.CheckApplication())
+	keyAuth := (func(h echo.HandlerFunc) echo.HandlerFunc)(apiAuth.KeyAuth())
+
+	r.Group.Use(checkMiddleware, keyAuth)
 }
 
 func (r *RecoverAccount) register(route *router.Route) {
