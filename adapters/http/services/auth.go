@@ -1,6 +1,7 @@
 package services
 
 import (
+	"github.com/golang-jwt/jwt"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	repositoriesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/repositories"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
@@ -10,6 +11,12 @@ import (
 type (
 	Auth struct {
 		repo repositories.UserRepository
+	}
+
+	JwtCustomClaims struct {
+		Name  string `json:"name"`
+		Email string `json:"email,omitempty"`
+		jwt.StandardClaims
 	}
 )
 

@@ -5,7 +5,6 @@ import (
 	"github.com/golang-jwt/jwt"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	repositoriesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/repositories"
-	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/auth_controller"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/repositories"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"log"
@@ -27,7 +26,7 @@ func NewRecoverAccount(db *database.Database) *RecoverAccount {
 }
 
 func (r *RecoverAccount) genToken(email string) error {
-	claims := auth_controller.JwtCustomClaims{
+	claims := JwtCustomClaims{
 		Name:  "recover-token",
 		Email: email,
 		StandardClaims: jwt.StandardClaims{

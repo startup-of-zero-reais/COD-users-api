@@ -26,12 +26,6 @@ type (
 		Email    string `json:"email,omitempty"`
 		Password string `json:"password,omitempty"`
 	}
-
-	JwtCustomClaims struct {
-		Name  string `json:"name"`
-		Email string `json:"email,omitempty"`
-		jwt.StandardClaims
-	}
 )
 
 func New(g *echo.Group, db *database.Database) *Auth {
@@ -68,10 +62,10 @@ func (a *Auth) loginHandler(c echo.Context) error {
 		return echo.ErrUnauthorized
 	}
 
-	claims := &JwtCustomClaims{
-		user.Name,
-		user.Email,
-		jwt.StandardClaims{
+	claims := &servicesAdapter.JwtCustomClaims{
+		Name:  user.Name,
+		Email: user.Email,
+		StandardClaims: jwt.StandardClaims{
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	}
