@@ -13,17 +13,19 @@ import (
 	"github.com/labstack/echo/v4"
 	"github.com/labstack/echo/v4/middleware"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/router"
-	"os"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"strings"
 )
 
 type (
+	// XApiKey é a estrutura de chaves de api
 	XApiKey struct {
 		encryptor *Encryptor
 		pk        *rsa.PrivateKey
 	}
 )
 
+// NewXApiKey é o construtor de XApiKey
 func NewXApiKey() *XApiKey {
 	encryptor := NewEncryptor()
 	return &XApiKey{
@@ -32,6 +34,7 @@ func NewXApiKey() *XApiKey {
 	}
 }
 
+// KeyAuth retorna o middleware que valida o cabeçalho X-Api-Key
 func (x *XApiKey) KeyAuth() router.MiddlewareHandler {
 	return (router.MiddlewareHandler)(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 		KeyLookup:  "header:X-Api-Key",
@@ -40,6 +43,7 @@ func (x *XApiKey) KeyAuth() router.MiddlewareHandler {
 	}))
 }
 
+// CheckApplication é o middleware que valida o cabeçalho Application
 func (x *XApiKey) CheckApplication() router.MiddlewareHandler {
 	return (router.MiddlewareHandler)(middleware.KeyAuthWithConfig(middleware.KeyAuthConfig{
 		KeyLookup:  "header:Application",
@@ -48,8 +52,10 @@ func (x *XApiKey) CheckApplication() router.MiddlewareHandler {
 	}))
 }
 
+// ValidApplication valida se o cabeçalho Application possui um valor aceito e se
+// é um valor permitido
 func (x *XApiKey) ValidApplication(key string, _ echo.Context) (bool, error) {
-	validPlatforms := strings.Split(getEnv("PERMIT_APPLICATIONS", ""), ",")
+	validPlatforms := strings.Split(utilities.GetEnv("PERMIT_APPLICATIONS", ""), ",")
 	if len(validPlatforms) == 0 {
 		return false, errors.New("requisição nao autorizada")
 	}
@@ -62,6 +68,7 @@ func (x *XApiKey) ValidApplication(key string, _ echo.Context) (bool, error) {
 	return isPermitted, nil
 }
 
+// IsValidKey valida se o cabeçalho de X-Api-Key é válido e autorizado
 func (x *XApiKey) IsValidKey(key string, c echo.Context) (bool, error) {
 	application := c.Request().Header.Get("Application")
 	hashApp := sha1.New()
@@ -90,6 +97,7 @@ func (x *XApiKey) IsValidKey(key string, c echo.Context) (bool, error) {
 	return app == base64.StdEncoding.EncodeToString(hashSum), nil
 }
 
+// GenerateApiKey é responsável por criar uma chave de api baseado no cabeçalho application
 func (x *XApiKey) GenerateApiKey(application string) (string, error) {
 	secret := []byte(application)
 
@@ -111,12 +119,4 @@ func (x *XApiKey) GenerateApiKey(application string) (string, error) {
 	sign64 := base64.StdEncoding.EncodeToString(signBuff.Bytes())
 	key := fmt.Sprintf("%s.%s", hash64, sign64)
 	return key, nil
-}
-
-func getEnv(key, _default string) string {
-	if e := os.Getenv(key); e != "" {
-		return e
-	}
-
-	return _default
 }
