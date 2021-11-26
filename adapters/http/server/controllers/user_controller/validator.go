@@ -6,6 +6,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/validators"
 )
 
+// O validate é o método responsável por fazer a validação do corpo da requisição
 func (u *User) validate(c echo.Context) (*entities.User, []validators.Error) {
 	user := new(entities.User)
 

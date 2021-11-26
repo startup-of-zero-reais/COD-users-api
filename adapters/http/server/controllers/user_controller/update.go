@@ -3,6 +3,7 @@ package user_controller
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/router"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/middlewares/bearer_jwt"
 	"net/http"
 )
 
@@ -23,10 +24,12 @@ func (u *User) updateHandler(c echo.Context) error {
 
 }
 
+// Update registra a rota de atualização de usuário na aplicação
 func (u *User) Update() {
 	route := router.NewRoute(u.Group)
 	route.Method = router.PUT
 	route.Path = "/:id"
+	route.Use(bearer_jwt.JwtHeaderConfig())
 	route.Register(u.updateHandler)
 	u.register(route)
 }

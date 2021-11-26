@@ -2,16 +2,18 @@ package database
 
 import (
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"gorm.io/driver/mysql"
 	"gorm.io/gorm"
-	"os"
 )
 
 type (
+	// Db é a 'interface' necessária para ter a estrutura de conexão com o banco de dados
 	Db interface {
 		Connect() error
 	}
 
+	// Database é a estrutura que administra a conexão e Env de bancos de dados
 	Database struct {
 		Dsn               string
 		Conn              *gorm.DB
@@ -20,14 +22,16 @@ type (
 	}
 )
 
+// NewDatabase método construtor de Database
 func NewDatabase() *Database {
 	return &Database{
-		Dsn:               getEnv("MYSQL_COD_DSN", ""),
-		Env:               getEnv("APPLICATION_ENV", "development"),
-		ShouldAutoMigrate: getEnv("MUST_AUTOMIGRATE", "false"),
+		Dsn:               utilities.GetEnv("MYSQL_COD_DSN", ""),
+		Env:               utilities.GetEnv("APPLICATION_ENV", "development"),
+		ShouldAutoMigrate: utilities.GetEnv("MUST_AUTOMIGRATE", "false"),
 	}
 }
 
+// Connect é o método que efetua de fato a conexão com o banco de dados
 func (d *Database) Connect() error {
 	db, err := gorm.Open(
 		mysql.Open(d.Dsn),
@@ -40,7 +44,7 @@ func (d *Database) Connect() error {
 	}
 
 	if d.ShouldAutoMigrate == "true" {
-		err = db.AutoMigrate(&entities.User{})
+		err = db.AutoMigrate(&entities.User{}, &entities.RecoverToken{})
 		if err != nil {
 			return err
 		}
@@ -49,12 +53,4 @@ func (d *Database) Connect() error {
 	d.Conn = db
 
 	return err
-}
-
-func getEnv(key, _default string) string {
-	if envVar := os.Getenv(key); envVar != "" {
-		return envVar
-	}
-
-	return _default
 }

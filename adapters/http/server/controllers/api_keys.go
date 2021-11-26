@@ -3,10 +3,11 @@ package controllers
 import (
 	"github.com/labstack/echo/v4"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/middlewares/x_api_key"
+	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"net/http"
-	"os"
 )
 
+// GenKey registra a rota para gerar chaves de api na aplicação
 func GenKey() (string, func(ctx echo.Context) error, echo.MiddlewareFunc) {
 	auth := x_api_key.NewXApiKey()
 
@@ -22,7 +23,7 @@ func GenKey() (string, func(ctx echo.Context) error, echo.MiddlewareFunc) {
 			return ctx.JSON(http.StatusBadRequest, map[string]string{"message": err.Error()})
 		}
 
-		if sec := getEnv("APP_SECRET", "secret0-123-0z"); secret.Secret != sec {
+		if sec := utilities.GetEnv("APP_SECRET", "secret0-123-0z"); secret.Secret != sec {
 			return ctx.JSON(http.StatusForbidden, map[string]string{"message": "Forbidden"})
 		}
 
@@ -33,11 +34,4 @@ func GenKey() (string, func(ctx echo.Context) error, echo.MiddlewareFunc) {
 
 		return ctx.JSON(http.StatusOK, map[string]string{"message": key, "application": application})
 	}, (func(c echo.HandlerFunc) echo.HandlerFunc)(auth.CheckApplication())
-}
-
-func getEnv(key, _default string) string {
-	if e := os.Getenv(key); e != "" {
-		return e
-	}
-	return _default
 }

@@ -12,12 +12,14 @@ import (
 )
 
 type (
+	// User é a estrutura de validação de usuários
 	User struct {
 		validate *validator.Validate
 		trans    ut.Translator
 	}
 )
 
+// NewUser é o construtor de User
 func NewUser() *User {
 	ptBR := pt_BR.New()
 	uni := ut.New(ptBR, ptBR)
@@ -41,6 +43,7 @@ func NewUser() *User {
 	return user
 }
 
+// Validate é o método que implementa a 'interface' de validação para usuário
 func (u *User) Validate(user *entities.User) []validators.Error {
 	err := u.validate.Struct(user)
 
@@ -79,6 +82,7 @@ func (u *User) Validate(user *entities.User) []validators.Error {
 	return nil
 }
 
+// O translateOverride é responsável por traduzir e customizar erros de validação
 func (u *User) translateOverride() {
 	_ = u.validate.RegisterTranslation("required_if", u.trans, func(ut ut.Translator) error {
 		return ut.Add("required_if", "{0} é um campo obrigatório", true)

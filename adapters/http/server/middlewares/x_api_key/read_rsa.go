@@ -11,12 +11,14 @@ import (
 )
 
 type (
+	// Encryptor é a estrutura de encriptação das chaves de api
 	Encryptor struct {
 		PrivateKey *rsa.PrivateKey
 		PublicKey  *rsa.PublicKey
 	}
 )
 
+// NewEncryptor é o construtor de Encryptor
 func NewEncryptor() *Encryptor {
 	encryptor := &Encryptor{}
 
@@ -57,12 +59,17 @@ func NewEncryptor() *Encryptor {
 }
 
 const (
-	_        = iota
+	_ = iota
+	// BitsBase é o tamanho de 512 bits de criptografia
 	BitsBase = 512 * iota
-	BitsLv2  = BitsBase * iota
-	BitsLv3  = BitsLv2 * iota
+	// BitsLv2 é o tamanho de 1024 bits de criptografia
+	BitsLv2 = BitsBase * iota
+	_       = iota
+	// BitsLv3 é o tamanho de 4096 bits de criptografia
+	BitsLv3 = BitsLv2 * iota
 )
 
+// GenerateKeyPairs gera os arquivos das chaves pública e privada RSA
 func (e *Encryptor) GenerateKeyPairs() error {
 	privateKey, _ := rsa.GenerateKey(rand.Reader, BitsLv3)
 	publicKey := &privateKey.PublicKey
@@ -108,6 +115,7 @@ func (e *Encryptor) GenerateKeyPairs() error {
 	return nil
 }
 
+// GetFileContent lê os 'bytes' do arquivo definido no parâmetro
 func (e *Encryptor) GetFileContent(file string) ([]byte, error) {
 	_, err := os.ReadFile(getKeysLocation(file))
 	if err != nil {
@@ -128,14 +136,17 @@ func (e *Encryptor) GetFileContent(file string) ([]byte, error) {
 	return b1[:n1], nil
 }
 
+// GetRSA pega o conteúdo do arquivo de chave id_rsa
 func (e *Encryptor) GetRSA() ([]byte, error) {
 	return e.GetFileContent("id_rsa")
 }
 
+// GetRSAPub pega o conteúdo do arquivo de chave pública id_rsa.pub
 func (e *Encryptor) GetRSAPub() ([]byte, error) {
 	return e.GetFileContent("id_rsa.pub")
 }
 
+// O getKeysLocation é para resolver o caminho dos arquivos baseado no 'Environment'
 func getKeysLocation(file string) string {
 	if e := os.Getenv("APPLICATION_ENV"); e != "" {
 		if e == "development" {

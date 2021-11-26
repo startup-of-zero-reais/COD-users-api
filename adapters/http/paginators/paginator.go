@@ -5,6 +5,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 )
 
+// NewPaginator é o construtor de paginators.Pager
 func NewPaginator(baseURL string) paginators.Pager {
 	defaultPerPage := utilities.GetEnvUint("DEFAULT_PAGINATOR_PER_PAGE", 10)
 	defaultPage := utilities.GetEnvUint("DEFAULT_PAGINATOR_PAGE", 1)

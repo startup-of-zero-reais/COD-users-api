@@ -1,0 +1,277 @@
+{
+	"openapi": "3.0.3",
+	"info": {
+		"title": "COD-users-api",
+		"description": "Api de usuários do CodeCraft",
+		"version": "1.0.0"
+	},
+	"servers": [
+		{
+			"url": "https://users-api.code-craft.club/",
+			"description": "Api de usuários do CodeCraft Club"
+		}
+	],
+	"paths": {
+		"/users": {
+			"get": {
+				"tags": [
+					"users"
+				],
+				"summary": "Listagem de usuários",
+				"description": "Retorna uma lista de usuários",
+				"parameters": [
+					{
+						"name": "x-api-key",
+						"in": "header",
+						"required": true,
+						"description": "Chave de api",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "application",
+						"in": "header",
+						"required": true,
+						"description": "Nome da aplicação que faz a request",
+						"schema": {
+							"type": "string"
+						}
+					},
+					{
+						"name": "page",
+						"in": "query",
+						"required": false,
+						"description": "Número da página da lista",
+						"schema": {
+							"type": "integer",
+							"format": "int"
+						}
+					},
+					{
+						"name": "per_page",
+						"in": "query",
+						"required": false,
+						"description": "Número da itens por página",
+						"schema": {
+							"type": "integer",
+							"format": "int"
+						}
+					},
+					{
+						"name": "ids",
+						"in": "query",
+						"required": false,
+						"description": "IDS de usuários separados por vírgula",
+						"schema": {
+							"type": "integer",
+							"format": "int"
+						}
+					}
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/Paginated"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "token missing"
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "api key invalida"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			},
+			"post": {
+				"tags": [
+					"users"
+				],
+				"responses": {
+					"200": {
+						"description": "OK",
+						"content": {
+							"application/json": {
+								"schema": {
+									"$ref": "#/components/schemas/User"
+								}
+							}
+						}
+					},
+					"400": {
+						"description": "Bad request",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "token missing"
+										}
+									}
+								}
+							}
+						}
+					},
+					"403": {
+						"description": "Forbidden",
+						"content": {
+							"application/json": {
+								"schema": {
+									"type": "object",
+									"properties": {
+										"message": {
+											"type": "string",
+											"example": "api key invalida"
+										}
+									}
+								}
+							}
+						}
+					}
+				}
+			}
+		},
+		"/users/{userID}": {
+		},
+		"/recover-account": {},
+		"/healthcheck": {},
+		"/auth": {}
+	},
+	"components": {
+		"schemas": {
+			"User": {
+				"type": "object",
+				"properties": {
+					"id": {
+						"type": "string",
+						"example": "30c1eca4-1fa2-4e8b-817c-4f7df7db0f0e"
+					},
+					"name": {
+						"type": "string",
+						"example": "Vicente"
+					},
+					"lastname": {
+						"type": "string",
+						"example": "do role"
+					},
+					"email": {
+						"type": "string",
+						"example": "vicente@email.com"
+					},
+					"user_type": {
+						"type": "string",
+						"example": "student",
+						"enum": [
+							"student",
+							"teacher"
+						]
+					},
+					"_href": {
+						"type": "string",
+						"example": "http://localhost:8080/users?ids=30c1eca4-1fa2-4e8b-817c-4f7df7db0f0e&page=1&per_page=1",
+						"format": "url"
+					},
+					"created_at": {
+						"type": "string",
+						"example": "2021-11-22T01:02:23.616Z",
+						"format": "date-time"
+					},
+					"updated_at": {
+						"type": "string",
+						"example": "2021-11-22T01:02:23.616Z",
+						"format": "date-time"
+					}
+				}
+			},
+			"Paginated": {
+				"type": "object",
+				"properties": {
+					"data": {
+						"type": "array",
+						"items": {
+							"$ref": "#/components/schemas/User"
+						}
+					},
+					"_metadata": {
+						"type": "object",
+						"properties": {
+							"page": {
+								"type": "integer",
+								"format": "int",
+								"example": 1
+							},
+							"per_page": {
+								"type": "integer",
+								"format": "int",
+								"example": 10
+							},
+							"total": {
+								"type": "integer",
+								"format": "int",
+								"example": 1
+							}
+						}
+					},
+					"_links": {
+						"type": "object",
+						"properties": {
+							"previous": {
+								"type": "string",
+								"example": "http://localhost:8080/users?page=1&per_page=10",
+								"format": "url"
+							},
+							"next": {
+								"type": "string",
+								"example": "http://localhost:8080/users?page=2&per_page=10",
+								"format": "url"
+							},
+							"first": {
+								"type": "string",
+								"example": "http://localhost:8080/users?page=1&per_page=10",
+								"format": "url"
+							},
+							"last": {
+								"type": "string",
+								"example": "http://localhost:8080/users?page=1&per_page=10",
+								"format": "url"
+							}
+						}
+					}
+				}
+			}
+		}
+	}
+}

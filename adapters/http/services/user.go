@@ -9,17 +9,21 @@ import (
 )
 
 type (
+	// User é a estrutura de serviço de usuários
 	User struct {
 		repo repositories.UserRepository
 	}
 )
 
+// NewUser é o construtor de User
 func NewUser(db *database.Database) *User {
 	return &User{
 		repo: repositoriesAdapter.NewUser(db),
 	}
 }
 
+// O paginate é responsável por retornar a partir de qual registro será feita a busca
+// no repositório de usuário
 func (us *User) paginate(page uint, perPage uint) uint {
 	offset := perPage
 	if page >= 1 {
@@ -29,6 +33,7 @@ func (us *User) paginate(page uint, perPage uint) uint {
 	return offset
 }
 
+// List é o método responsável por listar os usuários e o total de usuários na base de dados
 func (us *User) List(ids []string, page uint, perPage uint) ([]entities.User, int) {
 	offset := us.paginate(page, perPage)
 	users, total := us.repo.Get(ids, perPage, offset)
@@ -42,6 +47,7 @@ func (us *User) List(ids []string, page uint, perPage uint) ([]entities.User, in
 	return usersHiddenFields, total
 }
 
+// Get recupera um único usuário baseado no seu ID
 func (us *User) Get(id string) *entities.User {
 	findId := []string{id}
 	users, _ := us.repo.Get(findId, 1, 0)
@@ -49,6 +55,7 @@ func (us *User) Get(id string) *entities.User {
 	return &users[0]
 }
 
+// Create registra um novo usuário no repositório de usuário
 func (us *User) Create(user *entities.User) (*entities.User, error) {
 	isSetUser, _ := us.repo.Search(map[string]interface{}{"email": user.Email})
 	if len(isSetUser) > 0 {
@@ -67,6 +74,7 @@ func (us *User) Create(user *entities.User) (*entities.User, error) {
 	return createdUser, nil
 }
 
+// Update atualiza o registro de um usuário no repositório
 func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
 	currentUserResponse, _ := us.repo.Get([]string{id}, 1, 0)
 
@@ -105,6 +113,7 @@ func (us *User) Update(id string, user *entities.User) (*entities.User, error) {
 	return updatedUser, nil
 }
 
+// Delete apaga o registro de um usuário no repositório
 func (us *User) Delete(id string) bool {
 	return us.repo.Delete(id)
 }
