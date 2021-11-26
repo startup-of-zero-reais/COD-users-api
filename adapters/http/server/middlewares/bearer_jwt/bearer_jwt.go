@@ -7,6 +7,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 )
 
+// JwtHeaderConfig retorna o middleware que valida o jwt de autenticação
 func JwtHeaderConfig() router.MiddlewareHandler {
 	config := middleware.JWTConfig{
 		Claims:     &services.JwtCustomClaims{},
