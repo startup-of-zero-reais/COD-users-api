@@ -15,12 +15,14 @@ import (
 )
 
 type (
+	// RecoverAccount é a estrutura de serviço de recuperação de conta
 	RecoverAccount struct {
 		repo      repositories.UserRepository
 		tokenRepo repositories.TokenRepository
 	}
 )
 
+// NewRecoverAccount é o construtor de RecoverAccount
 func NewRecoverAccount(db *database.Database) *RecoverAccount {
 	return &RecoverAccount{
 		repo:      repositoriesAdapter.NewUser(db),
@@ -28,6 +30,7 @@ func NewRecoverAccount(db *database.Database) *RecoverAccount {
 	}
 }
 
+// O método genToken gera um token novo baseado no e-mail do usuário
 func (r *RecoverAccount) genToken(email string) (*entities.RecoverToken, error) {
 	claims := JwtCustomClaims{
 		Name:  "recover-token",
@@ -51,6 +54,8 @@ func (r *RecoverAccount) genToken(email string) (*entities.RecoverToken, error) 
 	return generatedToken, nil
 }
 
+// SendEmail envia um e-mail de recuperação de conta para o usuário que corresponde
+// ao e-mail do parâmetro, caso exista tal usuário
 func (r *RecoverAccount) SendEmail(email string) bool {
 	searchEmail := map[string]interface{}{
 		"email": email,
@@ -82,6 +87,8 @@ func (r *RecoverAccount) SendEmail(email string) bool {
 
 }
 
+// GetToken recupera um entities.RecoverToken da base caso o ID esteja correto
+// e retorna um erro quando não existe o token
 func (r *RecoverAccount) GetToken(id string) (*entities.RecoverToken, error) {
 	token := r.tokenRepo.Get(id)
 
@@ -92,6 +99,7 @@ func (r *RecoverAccount) GetToken(id string) (*entities.RecoverToken, error) {
 	return token, nil
 }
 
+// ValidateToken decodifica o token e checa se é um token válido
 func (r *RecoverAccount) ValidateToken(token string) error {
 	parsedToken, err := jwt.ParseWithClaims(token, &JwtCustomClaims{}, func(token *jwt.Token) (interface{}, error) {
 		tokenSecret := utilities.GetEnv("RECOVER_SECRET", "123456")
@@ -108,6 +116,7 @@ func (r *RecoverAccount) ValidateToken(token string) error {
 	return nil
 }
 
+// UpdatePassword atualiza a senha do usuário que corresponde ao e-mail
 func (r *RecoverAccount) UpdatePassword(email, newPassword string) error {
 	searchField := map[string]interface{}{
 		"email": email,
@@ -129,6 +138,7 @@ func (r *RecoverAccount) UpdatePassword(email, newPassword string) error {
 	return nil
 }
 
+// O sendMail é um helper para enviar o e-mail com o formato correto
 func sendMail(toMail, subject, theMessage string) error {
 	from := utilities.GetEnv("SMTP_EMAIL", "jean.carlosmolossi@gmail.com")
 	password := utilities.GetEnv("SMTP_PASSWORD", "123456")
