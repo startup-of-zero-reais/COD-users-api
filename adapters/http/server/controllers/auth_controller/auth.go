@@ -15,6 +15,7 @@ import (
 )
 
 type (
+	// Auth é a estrutura de rotas de autenticação da API
 	Auth struct {
 		Routes    []*router.Route
 		Service   services.AuthService
@@ -22,12 +23,14 @@ type (
 		Group     *echo.Group
 	}
 
+	// A authBody é a estrutura de autenticação do corpo da requisição
 	authBody struct {
 		Email    string `json:"email,omitempty"`
 		Password string `json:"password,omitempty"`
 	}
 )
 
+// New é um construtor do controller de Auth
 func New(g *echo.Group, db *database.Database) *Auth {
 	return &Auth{
 		Service:   servicesAdapter.NewAuth(db),
@@ -36,6 +39,9 @@ func New(g *echo.Group, db *database.Database) *Auth {
 	}
 }
 
+// Register é o método necessário para que Auth seja um Controller
+//
+// Register é responsável por executar os registros de rotas
 func (a *Auth) Register() {
 	a.Login()
 
@@ -44,6 +50,7 @@ func (a *Auth) Register() {
 	}
 }
 
+// O loginHandler é o método manipulador para executar o login de usuário
 func (a *Auth) loginHandler(c echo.Context) error {
 	b := authBody{}
 
@@ -86,6 +93,7 @@ func (a *Auth) loginHandler(c echo.Context) error {
 	})
 }
 
+// Login é o registro da rota de autenticação na API
 func (a *Auth) Login() {
 	route := router.NewRoute(a.Group)
 	route.Method = router.POST
@@ -93,6 +101,7 @@ func (a *Auth) Login() {
 	a.register(route)
 }
 
+// O register é o método para registrar as Rotas criadas no Controller de Auth
 func (a *Auth) register(route *router.Route) {
 	a.Routes = append(a.Routes, route)
 }
