@@ -11,6 +11,7 @@ import (
 	"strings"
 )
 
+// MaxUsrIds é o número máximo de IDS que pode ser procurado simultaneamente na base
 const MaxUsrIds = 128
 
 func (u *User) extractSearch(values url.Values) []string {
@@ -44,6 +45,7 @@ func (u *User) listHandler(c echo.Context) error {
 	return c.JSON(http.StatusOK, paginated)
 }
 
+// GetCollection é o método que implementa o recurso de coleção para User
 func (u *User) GetCollection(users []entities.User) []interface{ resources.Resource } {
 	var _users []interface{ resources.Resource }
 	for _, user := range users {
@@ -53,6 +55,7 @@ func (u *User) GetCollection(users []entities.User) []interface{ resources.Resou
 	return _users
 }
 
+// List registra a rota de listagem de usuários na API
 func (u *User) List() {
 	route := router.NewRoute(u.Group)
 	route.Use(bearer_jwt.JwtHeaderConfig())

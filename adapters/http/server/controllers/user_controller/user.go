@@ -14,6 +14,9 @@ import (
 )
 
 type (
+	// User é o controller principal da aplicação
+	//
+	// User é a estrutura do controller de entities.User
 	User struct {
 		Routes    []*router.Route
 		Service   services.UserService
@@ -23,6 +26,7 @@ type (
 	}
 )
 
+// New é o construtor do controller de User
 func New(g *echo.Group, db *database.Database) *User {
 	return &User{
 		Service:   servicesAdapter.NewUser(db),
@@ -32,6 +36,10 @@ func New(g *echo.Group, db *database.Database) *User {
 	}
 }
 
+// Register é o método que implementa o Controller
+//
+// Register faz com que User seja um controller.
+// Este método registra os middlewares e rotas do controller de usuários
 func (u *User) Register() {
 	u.Middlewares()
 
@@ -45,6 +53,7 @@ func (u *User) Register() {
 	}
 }
 
+// Middlewares registra os middlewares necessários no controller de usuários
 func (u *User) Middlewares() {
 	apiAuth := x_api_key.NewXApiKey()
 	checkMiddleware := (func(h echo.HandlerFunc) echo.HandlerFunc)(apiAuth.CheckApplication())
@@ -53,6 +62,7 @@ func (u *User) Middlewares() {
 	u.Group.Use(checkMiddleware, keyAuth)
 }
 
+// O register registra as rotas dentro do Controller de User
 func (u *User) register(route *router.Route) {
 	u.Routes = append(u.Routes, route)
 }

@@ -24,6 +24,7 @@ func (u *User) updateHandler(c echo.Context) error {
 
 }
 
+// Update registra a rota de atualização de usuário na aplicação
 func (u *User) Update() {
 	route := router.NewRoute(u.Group)
 	route.Method = router.PUT

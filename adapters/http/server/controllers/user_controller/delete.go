@@ -25,6 +25,7 @@ func (u *User) deleteHandler(c echo.Context) error {
 	return c.JSON(http.StatusNoContent, nil)
 }
 
+// Delete registra uma rota para deletar contas de usuário
 func (u *User) Delete() {
 	route := router.NewRoute(u.Group)
 	route.Method = router.DELETE

@@ -20,6 +20,7 @@ func (u *User) createHandler(c echo.Context) error {
 	return c.JSON(http.StatusCreated, createdUser)
 }
 
+// Create registra a rota para criar um novo usuário
 func (u *User) Create() {
 	route := router.NewRoute(u.Group)
 	route.Method = router.POST
