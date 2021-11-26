@@ -9,10 +9,12 @@ import (
 )
 
 type (
+	// Auth é a estrutura do serviço de autenticação
 	Auth struct {
 		repo repositories.UserRepository
 	}
 
+	// JwtCustomClaims é a estrutura de recuperação de tokens JWT personalizada
 	JwtCustomClaims struct {
 		Name  string `json:"name"`
 		Email string `json:"email,omitempty"`
@@ -20,12 +22,14 @@ type (
 	}
 )
 
+// NewAuth é o construtor de Auth
 func NewAuth(db *database.Database) *Auth {
 	return &Auth{
 		repo: repositoriesAdapter.NewUser(db),
 	}
 }
 
+// Get é o método para recuperar um usuário a partir de seu email
 func (a *Auth) Get(email string) *entities.User {
 	searchEmail := map[string]interface{}{
 		"email": email,
