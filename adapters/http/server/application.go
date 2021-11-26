@@ -12,17 +12,20 @@ import (
 )
 
 type (
+	// ApplicationInterface é a 'interface' para rodar a aplicação
 	ApplicationInterface interface {
 		Start()
 		Route()
 	}
 
+	// Application é a estrutura do server
 	Application struct {
 		e  *echo.Echo
 		db *database.Database
 	}
 )
 
+// O makeCodDbConnection cria uma instância de database.Database e conecta a base de dados
 func makeCodDbConnection() (*database.Database, error) {
 	dsn := os.Getenv("MYSQL_COD_DSN")
 	db := database.NewDatabase()
@@ -35,6 +38,7 @@ func makeCodDbConnection() (*database.Database, error) {
 	return db, nil
 }
 
+// NewApplication gera uma nova instância de Application
 func NewApplication() *Application {
 	s := echo.New()
 	s.Use(middleware.LoggerWithConfig(middleware.LoggerConfig{
@@ -54,11 +58,13 @@ func NewApplication() *Application {
 	}
 }
 
+// Start roda a Application
 func (a *Application) Start() {
 	a.Router()
 	a.e.Logger.Fatal(a.e.Start(":8080"))
 }
 
+// Router cria o roteamento da Application
 func (a *Application) Router() {
 	a.e.GET(controllers.HealthCheck())
 	a.e.POST(controllers.GenKey())
