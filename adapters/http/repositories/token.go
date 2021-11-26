@@ -7,17 +7,21 @@ import (
 )
 
 type (
+	// Token é a estrutura de repositório para anexar os métodos necessários
 	Token struct {
 		db *database.Database
 	}
 )
 
+// NewToken instancia um Token
 func NewToken(db *database.Database) *Token {
 	return &Token{
 		db: db,
 	}
 }
 
+// Get recupera um entities.RecoverToken case exista.
+// Pode retornar nil caso não encontre o valor na base de dados
 func (t *Token) Get(id string) *entities.RecoverToken {
 	token := &entities.RecoverToken{}
 
@@ -29,6 +33,7 @@ func (t *Token) Get(id string) *entities.RecoverToken {
 	return token
 }
 
+// Generate é o método que salva na base de dados um entities.RecoverToken
 func (t *Token) Generate(token, email string) *entities.RecoverToken {
 	recoverToken := &entities.RecoverToken{
 		Token:     token,
