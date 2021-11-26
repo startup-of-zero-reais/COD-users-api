@@ -13,6 +13,7 @@ import (
 )
 
 type (
+	// RecoverAccount é a estrutura do Controller de recuperação de conta
 	RecoverAccount struct {
 		Routes    []*router.Route
 		Service   services.RecoverAccountService
@@ -21,6 +22,7 @@ type (
 	}
 )
 
+// New é o construtor do controller de RecoverAccount
 func New(g *echo.Group, db *database.Database) *RecoverAccount {
 	return &RecoverAccount{
 		Service:   servicesAdapter.NewRecoverAccount(db),
@@ -29,6 +31,7 @@ func New(g *echo.Group, db *database.Database) *RecoverAccount {
 	}
 }
 
+// O recoverHandler é o manipulador da rota de recuperação de conta
 func (r *RecoverAccount) recoverHandler(c echo.Context) error {
 	body := struct {
 		Email string `json:"email,omitempty"`
@@ -51,6 +54,7 @@ func (r *RecoverAccount) recoverHandler(c echo.Context) error {
 	})
 }
 
+// Recover é o método que registra a rota de recuperação de conta
 func (r *RecoverAccount) Recover() {
 	route := router.NewRoute(r.Group)
 	route.Method = router.POST
@@ -58,6 +62,9 @@ func (r *RecoverAccount) Recover() {
 	r.register(route)
 }
 
+// Register é o método que implementa o Controller
+//
+// Register é o método que registra as rotas e middlewares do controller de RecoverAccount
 func (r *RecoverAccount) Register() {
 	r.Middlewares()
 
@@ -69,6 +76,7 @@ func (r *RecoverAccount) Register() {
 	}
 }
 
+// Middlewares registra os middlewares no grupo de rotas de RecoverAccount
 func (r *RecoverAccount) Middlewares() {
 	apiAuth := x_api_key.NewXApiKey()
 	checkMiddleware := (func(h echo.HandlerFunc) echo.HandlerFunc)(apiAuth.CheckApplication())
@@ -77,6 +85,7 @@ func (r *RecoverAccount) Middlewares() {
 	r.Group.Use(checkMiddleware, keyAuth)
 }
 
+// O register registra as rotas criadas no Controller de RecoverAccount
 func (r *RecoverAccount) register(route *router.Route) {
 	r.Routes = append(r.Routes, route)
 }

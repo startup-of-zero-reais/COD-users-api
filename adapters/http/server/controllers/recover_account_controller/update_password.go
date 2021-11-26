@@ -7,12 +7,14 @@ import (
 )
 
 type (
+	// RecoverPassword é a estrutura de redefinição de senha
 	RecoverPassword struct {
 		NewPassword             string `json:"new_password"`
 		NewPasswordConfirmation string `json:"new_password_confirmation"`
 	}
 )
 
+// O updatePasswordHandler é o manipulador da rota de atualização senha
 func (r *RecoverAccount) updatePasswordHandler(c echo.Context) error {
 	id := c.QueryParam("token")
 	if id == "" {
@@ -55,6 +57,7 @@ func (r *RecoverAccount) updatePasswordHandler(c echo.Context) error {
 	})
 }
 
+// UpdatePassword é o método que registra a rota de atualização de senha
 func (r *RecoverAccount) UpdatePassword() {
 	route := router.NewRoute(r.Group)
 	route.Method = router.POST
