@@ -10,8 +10,10 @@ import (
 )
 
 type (
+	// UserType é apenas uma definição de tipo para User.Type
 	UserType string
 
+	// User é o formato da estrutura de usuário
 	User struct {
 		ID          string    `json:"id" gorm:"primaryKey;column:user_id;type:varchar(36);"`
 		Name        string    `json:"name" gorm:"name" validate:"required"`
@@ -26,6 +28,7 @@ type (
 	}
 )
 
+// BeforeCreate gera o UUID padrão antes de criar um usuário e atribui o tipo "student" se não houver definição
 func (u *User) BeforeCreate(_ *gorm.DB) error {
 	u.ID = uuid.New().String()
 
@@ -36,6 +39,7 @@ func (u *User) BeforeCreate(_ *gorm.DB) error {
 	return nil
 }
 
+// BeforeSave Atribui o tipo "student" se não houver definição
 func (u *User) BeforeSave(_ *gorm.DB) error {
 	if u.Type == "" {
 		u.Type = student
@@ -44,22 +48,26 @@ func (u *User) BeforeSave(_ *gorm.DB) error {
 	return nil
 }
 
+// HashPassword recebe cria um hash de senha a partir do attr NewPassword do usuário
 func (u *User) HashPassword() error {
 	bytes, err := bcrypt.GenerateFromPassword([]byte(u.NewPassword), 14)
 	u.Password = string(bytes)
 	return err
 }
 
+// IsValidPassword compara uma senha com o hash da Password do usuário
 func (u *User) IsValidPassword(password string) bool {
 	err := bcrypt.CompareHashAndPassword([]byte(u.Password), []byte(password))
 	return err == nil
 }
 
+// HideSensitiveFields é responsável por simplesmente subscrever campos sensíveis do usuário por vazio para serem ocultados
 func (u *User) HideSensitiveFields() {
 	u.Password = ""
 	u.NewPassword = ""
 }
 
+// GetEmbedded implementa um Resource para atribuir o Href do usuário com o link de direcionamento para o User
 func (u *User) GetEmbedded() {
 	if u.ID != "" {
 		baseURL := utilities.GetEnv("APPLICATION_HOST", "http://localhost:8080")
@@ -71,6 +79,8 @@ func (u *User) GetEmbedded() {
 }
 
 const (
+	// student é uma constante para atribuir o tipo para o usuário
 	student = UserType("student")
-	_       = UserType("teacher")
+	// teacher é uma constante para atribuir o tipo para o usuário
+	teacher = UserType("teacher")
 )
