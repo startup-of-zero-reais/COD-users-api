@@ -1,16 +1,20 @@
 package auth_controller
 
 import (
+	"fmt"
 	"github.com/golang-jwt/jwt"
 	"github.com/labstack/echo/v4"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/database"
 	paginatorsAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/paginators"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/router"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/middlewares/bearer_jwt"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/middlewares/x_api_key"
 	servicesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/services"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/paginators"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/services"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/utilities"
 	"net/http"
+	"strings"
 	"time"
 )
 
@@ -44,6 +48,7 @@ func New(g *echo.Group, db *database.Database) *Auth {
 // Register é responsável por executar os registros de rotas
 func (a *Auth) Register() {
 	a.Login()
+	a.Me()
 
 	for _, r := range a.Routes {
 		r.RegisterRoutes()
@@ -70,9 +75,14 @@ func (a *Auth) loginHandler(c echo.Context) error {
 	}
 
 	claims := &servicesAdapter.JwtCustomClaims{
-		Name:  user.Name,
-		Email: user.Email,
+		Name:      user.Name,
+		Lastname:  user.Lastname,
+		Email:     user.Email,
+		Type:      user.Type,
+		CreatedAt: user.CreatedAt,
+		UpdatedAt: user.UpdatedAt,
 		StandardClaims: jwt.StandardClaims{
+			Subject:   user.ID,
 			ExpiresAt: time.Now().Add(time.Hour * 24).Unix(),
 		},
 	}
@@ -98,6 +108,37 @@ func (a *Auth) Login() {
 	route := router.NewRoute(a.Group)
 	route.Method = router.POST
 	route.Register(a.loginHandler)
+	a.register(route)
+}
+
+// O meHandler é o método para retornar o usuário que está logado baseado no header JWT
+func (a *Auth) meHandler(c echo.Context) error {
+	tokenString := strings.Split(c.Request().Header.Get("Authorization"), "Bearer ")[1]
+	user, err := bearer_jwt.JwtDecode(tokenString)
+	if err != nil {
+		return c.JSON(http.StatusForbidden, map[string]string{
+			"message": fmt.Sprintf("Unauthorized: %s", err.Error()),
+		})
+	}
+
+	user.HideSensitiveFields()
+	return c.JSON(http.StatusOK, user)
+}
+
+// Me é o registro da rota de getMe
+func (a *Auth) Me() {
+	route := router.NewRoute(a.Group)
+	route.Path = "/me"
+
+	apiAuth := x_api_key.NewXApiKey()
+	checkMiddleware := (func(h echo.HandlerFunc) echo.HandlerFunc)(apiAuth.CheckApplication())
+	keyAuth := (func(h echo.HandlerFunc) echo.HandlerFunc)(apiAuth.KeyAuth())
+
+	route.Use(bearer_jwt.JwtHeaderConfig())
+	route.Use(checkMiddleware)
+	route.Use(keyAuth)
+
+	route.Register(a.meHandler)
 	a.register(route)
 }
 
