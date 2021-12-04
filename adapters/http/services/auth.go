@@ -6,6 +6,7 @@ import (
 	repositoriesAdapter "github.com/startup-of-zero-reais/COD-users-api/adapters/http/repositories"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/entities"
 	"github.com/startup-of-zero-reais/COD-users-api/domain/ports/repositories"
+	"time"
 )
 
 type (
@@ -16,8 +17,12 @@ type (
 
 	// JwtCustomClaims é a estrutura de recuperação de tokens JWT personalizada
 	JwtCustomClaims struct {
-		Name  string `json:"name"`
-		Email string `json:"email,omitempty"`
+		Name      string            `json:"name"`
+		Lastname  string            `json:"lastname"`
+		Email     string            `json:"email,omitempty"`
+		Type      entities.UserType `json:"user_type"`
+		CreatedAt time.Time         `json:"created_at"`
+		UpdatedAt time.Time         `json:"updated_at"`
 		jwt.StandardClaims
 	}
 )
