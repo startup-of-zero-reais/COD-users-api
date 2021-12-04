@@ -8,6 +8,7 @@ import (
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/auth_controller"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/recover_account_controller"
 	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/controllers/user_controller"
+	"github.com/startup-of-zero-reais/COD-users-api/adapters/http/server/middlewares/cors"
 	"os"
 )
 
@@ -68,6 +69,7 @@ func (a *Application) Start() {
 func (a *Application) Router() {
 	a.e.GET(controllers.HealthCheck())
 	a.e.POST(controllers.GenKey())
+	a.e.Use(cors.Middleware())
 
 	auth_controller.New(
 		a.e.Group("/auth"),
