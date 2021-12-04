@@ -74,17 +74,19 @@ func (r *RecoverAccount) SendEmail(email string) bool {
 	}
 
 	textMessage := fmt.Sprintf(
-		"Mensagem de fato que vai pro e-mail.\nSeu token: %s",
+		"Você solicitou a recuperação de conta.\n\nCaso não tenha sido você apenas desconsidere.\n"+
+			"Segue o link de recuperação: %s/redefinir-senha?token=%s\n\n"+
+			"OBS.: Este link vale por 4 horas.",
+		utilities.GetEnv("RECOVER_BASE_URL", "http://localhost:3000"),
 		token.ID,
 	)
 
-	err = sendMail(email, "Assunto do e-mail", textMessage)
+	err = sendMail(email, "Recuperação de conta | Code Craft", textMessage)
 	if err != nil {
 		return false
 	}
 
 	return true
-
 }
 
 // GetToken recupera um entities.RecoverToken da base caso o ID esteja correto
